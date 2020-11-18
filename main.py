@@ -7,7 +7,7 @@ from PySide2.QtWidgets import (
     QHBoxLayout, QSizePolicy, QApplication,
     QMainWindow, QAction, QWidget)
 
-from func_tree_widget import FunctionTreeWidget
+from function_def_tree_widget import FunctionDefTreeWidget
 from plot_widget import PlotWidget
 
 
@@ -17,7 +17,7 @@ class MainWidget(QWidget):
         QWidget.__init__(self)
 
         # Creating left FunctionTreeWidget
-        self.func_tree_widget = FunctionTreeWidget(self)
+        self.func_tree_widget = FunctionDefTreeWidget(self)
 
         # Creating right PlotWidget
         self.plot_widget = PlotWidget(self)
@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
 
         # Status Bar
         self.status = self.statusBar()
-        self.status.showMessage('Data loaded and plotted')
+        self.status.showMessage('Data loaded')
 
 
 if __name__ == "__main__":
@@ -70,7 +70,8 @@ if __name__ == "__main__":
     geometry = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 
     window = MainWindow()
-    window.resize(geometry.width() * 0.8, geometry.height() * 0.7)
+    window.resize(
+        int(geometry.width() * 0.8), int(geometry.height() * 0.7))
     window.show()
 
     # Execute application
