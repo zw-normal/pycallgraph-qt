@@ -7,8 +7,8 @@ from PySide2.QtWidgets import (
     QHBoxLayout, QSizePolicy, QApplication,
     QMainWindow, QAction, QWidget)
 
-from function_def_tree_widget import FunctionDefTreeWidget
-from plot_widget import PlotWidget
+from function_def_tree.tree_widget import FunctionDefTreeWidget
+from function_plot.plot_widget import PlotWidget
 
 
 class MainWidget(QWidget):

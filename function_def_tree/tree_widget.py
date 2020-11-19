@@ -2,7 +2,8 @@ from typing import Optional
 
 from PySide2.QtWidgets import QTreeView, QWidget
 
-from function_def_tree_model import FunctionDefTreeModel
+from function_def_tree.tree_model import FunctionDefTreeModel
+
 
 class FunctionDefTreeWidget(QTreeView):
 
