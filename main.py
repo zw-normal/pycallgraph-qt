@@ -8,7 +8,7 @@ from PySide2.QtWidgets import (
     QMainWindow, QAction, QWidget)
 
 from function_def_tree.tree_widget import FunctionDefTreeWidget
-from function_plot.plot_widget import PlotWidget
+from function_call_plot.plot_widget import PlotWidget
 
 
 class MainWidget(QWidget):
@@ -21,8 +21,6 @@ class MainWidget(QWidget):
 
         # Creating right PlotWidget
         self.plot_widget = PlotWidget(self)
-        self.plot_widget.load(QUrl('https://strongriley.github.io/d3/ex/'))
-        self.plot_widget.show()
 
         # Main layout
         self.main_layout = QHBoxLayout()
