@@ -10,6 +10,6 @@ class PlotWidget(QWebEngineView):
     def __init__(self, parent: Optional[QWidget]=...):
         super().__init__(parent)
 
-        url = QUrl.fromLocalFile(QDir.currentPath() + '/resource/html/index.html')
+        url = QUrl.fromLocalFile(QDir.currentPath() + '/resource/dist/index.html')
         self.load(url)
         self.show()

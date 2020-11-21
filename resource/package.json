@@ -1,0 +1,10 @@
+{
+  "name": "pycallgraph-resource",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^6.2.0",
+    "qwebchannel": "^5.9.0"
+  }
+}
