@@ -6,6 +6,10 @@ import * as d3 from "d3";
     const qWebChannel = require("qwebchannel");
     qWebChannel.QWebChannel(qt.webChannelTransport, function (channel) {
         const signalHub = channel.objects.signalHub;
+
+        signalHub.functionCallTree.connect(function () {
+            console.log(arguments);
+        });
     });
 
     const radius = 954 / 2;
