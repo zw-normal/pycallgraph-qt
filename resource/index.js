@@ -5,7 +5,7 @@ import * as d3 from "d3";
 
     const qWebChannel = require("qwebchannel");
     qWebChannel.QWebChannel(qt.webChannelTransport, function (channel) {
-        const backend = channel.objects.backend;
+        const signalHub = channel.objects.signalHub;
     });
 
     const radius = 954 / 2;

@@ -1,8 +1,10 @@
-from PySide2.QtCore import QObject
+from typing import Dict
+
+from PySide2.QtCore import QObject, Signal
 
 
 class SignalHub(QObject):
-    pass
+    func_call_tree = Signal(Dict)
 
 
 signalHub = SignalHub()
