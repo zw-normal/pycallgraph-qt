@@ -6,5 +6,9 @@
   "dependencies": {
     "d3": "^6.2.0",
     "qwebchannel": "^5.9.0"
+  },
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "parcel build index.html"
   }
 }

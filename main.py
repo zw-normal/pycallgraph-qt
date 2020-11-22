@@ -1,7 +1,6 @@
 import sys
 
 from PySide2 import QtGui
-from PySide2.QtCore import QUrl
 from PySide2.QtGui import QKeySequence
 from PySide2.QtWidgets import (
     QHBoxLayout, QSizePolicy, QApplication,
