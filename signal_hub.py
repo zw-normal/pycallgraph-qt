@@ -5,7 +5,7 @@ from PySide2.QtCore import QObject, Signal, Slot
 
 class SignalHub(QObject):
 
-    funcDefTreeFuncSel = Signal(str)
+    funcDefTreeFuncSel = Signal(int)
     funcCallersTreeGet = Signal(str)
 
     @Slot(int)

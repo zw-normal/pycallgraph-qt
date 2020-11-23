@@ -12,7 +12,8 @@ import {FunctionCallTree} from "./function_call_tree";
         });
 
         signalHub.funcDefTreeFuncSel.connect(function (funcId) {
-            signalHub.getFuncCallersTree(funcId);
+            console.log(funcId);
+            // signalHub.getFuncCallersTree(funcId);
         });
 
         // Testing
