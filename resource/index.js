@@ -7,7 +7,7 @@ import * as d3 from "d3";
     qWebChannel.QWebChannel(qt.webChannelTransport, function (channel) {
         const signalHub = channel.objects.signalHub;
 
-        signalHub.functionCallTree.connect(function () {
+        signalHub.funcDefTreeFuncSel.connect(function () {
             console.log(arguments);
         });
     });
