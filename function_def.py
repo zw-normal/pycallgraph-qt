@@ -1,6 +1,7 @@
+import os
 import enum
 
-from sqlalchemy import Column, Integer, String, Enum, UniqueConstraint, select, Index
+from sqlalchemy import Column, Integer, String, Enum, UniqueConstraint
 from sqlalchemy.orm import declarative_base
 
 
@@ -47,3 +48,10 @@ class FunctionNode(Base):
 
     def __hash__(self):
         return hash((self.source_file, self.line_no, self.col_offset))
+
+    def __repr__(self):
+        return str(self.id)
+
+    @property
+    def base_source_name(self):
+        return os.path.basename(self.source_file.replace('\\', os.sep))

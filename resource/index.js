@@ -1,4 +1,4 @@
-import {FunctionCallTree} from "./function_call_tree";
+import {FunctionCallDot} from "./function_call_dot";
 
 (function () {
     "use strict";
@@ -6,14 +6,14 @@ import {FunctionCallTree} from "./function_call_tree";
     const qWebChannel = require("qwebchannel");
     qWebChannel.QWebChannel(qt.webChannelTransport, function (channel) {
         const signalHub = channel.objects.signalHub;
-        const funcCallTree = new FunctionCallTree();
+        const funcCallDot = new FunctionCallDot();
 
-        signalHub.funcCallersTreeGet.connect(function (callersTree) {
-            funcCallTree.render(JSON.parse(callersTree));
+        signalHub.funcCallersDotGet.connect(function (callersDot) {
+            funcCallDot.render(callersDot);
         });
 
         signalHub.funcDefTreeFuncSel.connect(function (funcId) {
-            signalHub.getFuncCallersTree(funcId);
+            signalHub.getFuncCallersDot(funcId);
         });
     });
 }());
