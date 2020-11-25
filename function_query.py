@@ -77,7 +77,6 @@ def get_function_callers_dot(session, func_id: int):
     # Record the ambiguity callers
     func_callers = get_function_direct_callers(
         session, func_root.id, exact_call=False)
-    print(len(func_callers))
     func_caller_names = set((f.func_name for f in func_callers))
     for func_caller_name in func_caller_names:
         func_caller = FunctionAmbiguity(

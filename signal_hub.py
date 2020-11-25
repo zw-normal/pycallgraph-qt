@@ -1,5 +1,3 @@
-import json
-
 from sqlalchemy.orm import Session
 from PySide2.QtCore import QObject, Signal, Slot
 
