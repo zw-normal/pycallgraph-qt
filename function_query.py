@@ -69,11 +69,12 @@ def add_function_call(digraph, func_caller, func_callee):
 
 def get_function_callers_dot(session, func_id: int):
     call_graph = nx.DiGraph()
-    func_stack = []
 
     stmt = select(FunctionNode).where(FunctionNode.id == func_id)
     func_root = session.execute(stmt).scalar_one()
-    func_stack.append(func_root)
+
+    # Begin to find callers
+    func_stack = [func_root]
 
     # Record unique callers of each level
     for func_node in func_stack:
@@ -98,5 +99,32 @@ def get_function_callers_dot(session, func_id: int):
                 func_node.id)
             add_function_node(call_graph, func_caller)
             add_function_call(call_graph, func_caller, func_node)
+
+    # Begin to find callees
+    func_stack = [func_root]
+
+    # Record unique callees of each level
+    for func_node in func_stack:
+        add_function_node(call_graph, func_node, func_node == func_root)
+
+        func_callees = get_function_direct_callees(session, func_node.id)
+        for func_callee in func_callees:
+            add_function_node(call_graph, func_callee)
+            add_function_call(call_graph, func_node, func_callee)
+            if func_callee not in func_stack:
+                func_stack.append(func_callee)
+
+    # Record ambiguity callees of each level
+    for func_node in func_stack:
+        func_callees = get_function_direct_callees(
+            session, func_node.id, exact_call=False)
+        func_callee_names = set((f.func_name for f in func_callees))
+        for func_callee_name in func_callee_names:
+            func_callee = FunctionAmbiguity(
+                func_callee_name,
+                FunctionAmbiguityType.Callee,
+                func_node.id)
+            add_function_node(call_graph, func_callee)
+            add_function_call(call_graph, func_node, func_caller)
 
     return str(nx.nx_pydot.to_pydot(call_graph))
