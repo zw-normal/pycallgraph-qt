@@ -125,6 +125,6 @@ def get_function_callers_dot(session, func_id: int):
                 FunctionAmbiguityType.Callee,
                 func_node.id)
             add_function_node(call_graph, func_callee)
-            add_function_call(call_graph, func_node, func_caller)
+            add_function_call(call_graph, func_node, func_callee)
 
     return str(nx.nx_pydot.to_pydot(call_graph))
