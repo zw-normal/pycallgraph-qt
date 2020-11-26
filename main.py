@@ -1,13 +1,14 @@
 import sys
 
 from PySide2 import QtGui
-from PySide2.QtGui import QKeySequence
+from PySide2.QtGui import QKeySequence, QCloseEvent
 from PySide2.QtWidgets import (
     QHBoxLayout, QSizePolicy, QApplication,
     QMainWindow, QAction, QWidget)
 
 from function_def_tree.tree_widget import FunctionDefTreeWidget
 from function_call_plot.plot_widget import PlotWidget
+from signal_hub import signalHub
 
 
 class MainWidget(QWidget):
@@ -59,6 +60,10 @@ class MainWindow(QMainWindow):
         # Status Bar
         self.status = self.statusBar()
         self.status.showMessage('Data loaded')
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        super().closeEvent(event)
+        signalHub.stopFuncCallGraphThread()
 
 
 if __name__ == "__main__":

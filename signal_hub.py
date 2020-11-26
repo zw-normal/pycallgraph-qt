@@ -1,20 +1,33 @@
-from sqlalchemy.orm import Session
 from PySide2.QtCore import QObject, Signal, Slot
 
-from function_query import get_function_callers_dot
-from db import engine
+from function_call_graph import GraphThread
 
 
 class SignalHub(QObject):
 
-    funcDefTreeFuncSel = Signal(int)
-    funcCallersDotGet = Signal(str)
+    funcCallDotGet = Signal(str)
 
-    @Slot(int)
-    def getFuncCallersDot(self, func_id: int):
-        with Session(engine) as session:
-            self.funcCallersDotGet.emit(
-                get_function_callers_dot(session, func_id))
+    def __init__(self):
+        super().__init__()
+        self.graphThread = None
+
+    def getFuncCallDot(self, func_id: int):
+        if self.graphThread:
+            self.graphThread.resultReady.disconnect()
+            self.graphThread.stop()
+        self.graphThread = GraphThread(func_id)
+        self.graphThread.resultReady.connect(self.getFuncCallDone)
+        self.graphThread.start()
+
+    @Slot(str)
+    def getFuncCallDone(self, func_call_dot):
+        self.funcCallDotGet.emit(func_call_dot)
+
+    def stopFuncCallGraphThread(self):
+        if self.graphThread:
+            self.graphThread.resultReady.disconnect()
+            self.graphThread.stop()
+            self.graphThread = None
 
 
 signalHub = SignalHub()

@@ -20,4 +20,4 @@ class FunctionDefTreeWidget(QTreeView):
             self, selected: QItemSelection, deselected: QItemSelection):
         func_def = selected[0].indexes()[0].internalPointer()
         if func_def.function is not None:
-            signalHub.funcDefTreeFuncSel.emit(func_def.function.id)
+            signalHub.getFuncCallDot(func_def.function.id)
