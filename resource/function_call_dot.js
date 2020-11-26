@@ -26,11 +26,15 @@ export class FunctionCallDot {
         const render = new dagreD3.render();
         render(g, digraph);
 
+        d3.selectAll("g.node").on("dblclick", function() {
+             console.log(d3.select(this).data());
+        });
+
         const {x, y, width, height} = svg.node().getBBox();
         svg.call(
             d3.zoom()
                 .extent([[x, y], [width, height]])
                 .scaleExtent([0.1, 8])
-                .on("zoom", zoom));
+                .on("zoom", zoom)).on("dblclick.zoom", null);
     }
 }
