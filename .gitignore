@@ -5,3 +5,4 @@ __pycache__
 /venv
 /resource/.cache
 /resource/node_modules
+xplan.sqlite3

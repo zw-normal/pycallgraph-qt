@@ -19,7 +19,8 @@ functionNodeColor = {
 }
 
 def get_all_functions(session) -> List[FunctionNode]:
-    stmt = select(FunctionNode)
+    stmt = select(FunctionNode).order_by(
+        FunctionNode.module_name, FunctionNode.func_name)
     return session.execute(stmt).scalars().all()
 
 
@@ -29,7 +30,17 @@ def get_function_direct_callers(
         FunctionCall, onclause=FunctionNode.id == FunctionCall.caller_id).where(
         FunctionCall.callee_id == func_id,
         FunctionCall.exact_call == (true() if exact_call else false()),
-    )
+    ).order_by(FunctionCall.line_no)
+    return session.execute(stmt).scalars().all()
+
+
+def get_function_direct_callees(
+        session, func_id: int, exact_call: bool=True):
+    stmt = select(FunctionNode).join(
+        FunctionCall, onclause=FunctionNode.id == FunctionCall.callee_id).where(
+        FunctionCall.caller_id == func_id,
+        FunctionCall.exact_call == (true() if exact_call else false()),
+    ).order_by(FunctionCall.line_no)
     return session.execute(stmt).scalars().all()
 
 
@@ -64,6 +75,7 @@ def get_function_callers_dot(session, func_id: int):
     func_root = session.execute(stmt).scalar_one()
     func_stack.append(func_root)
 
+    # Record unique callers of each level
     for func_node in func_stack:
         add_function_node(call_graph, func_node, func_node == func_root)
 
@@ -74,16 +86,17 @@ def get_function_callers_dot(session, func_id: int):
             if func_caller not in func_stack:
                 func_stack.append(func_caller)
 
-    # Record the ambiguity callers
-    func_callers = get_function_direct_callers(
-        session, func_root.id, exact_call=False)
-    func_caller_names = set((f.func_name for f in func_callers))
-    for func_caller_name in func_caller_names:
-        func_caller = FunctionAmbiguity(
-            func_caller_name,
-            FunctionAmbiguityType.Caller,
-            func_root.id)
-        add_function_node(call_graph, func_caller)
-        add_function_call(call_graph, func_caller, func_root)
+    # Record ambiguity callers of each level
+    for func_node in func_stack:
+        func_callers = get_function_direct_callers(
+            session, func_node.id, exact_call=False)
+        func_caller_names = set((f.func_name for f in func_callers))
+        for func_caller_name in func_caller_names:
+            func_caller = FunctionAmbiguity(
+                func_caller_name,
+                FunctionAmbiguityType.Caller,
+                func_node.id)
+            add_function_node(call_graph, func_caller)
+            add_function_call(call_graph, func_caller, func_node)
 
     return str(nx.nx_pydot.to_pydot(call_graph))
