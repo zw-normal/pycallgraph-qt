@@ -6,6 +6,7 @@ from function_query import (
     get_function, get_function_direct_calls)
 from function_ambiguity import FunctionAmbiguity, FunctionAmbiguityType
 from setting import MAX_UNIQUE_CALLER_NODES, MAX_UNIQUE_CALLEE_NODES
+from signal_hub import signalHub
 from db import engine
 
 
@@ -48,12 +49,15 @@ class GraphThread(QThread):
             func_root = get_function(session, self.func_id)
 
             # Find callers
-            func_stack = self._record_unique_calls(session, func_root, True)
-            self._record_ambiguity_calls(session, func_stack, True)
+            self._record_unique_calls(session, func_root, True)
+            # self._record_ambiguity_calls(session, func_stack, True)
 
             # Find callees
             func_stack = self._record_unique_calls(session, func_root, False)
             self._record_ambiguity_calls(session, func_stack, False)
+
+        signalHub.funcCallDotProgress.emit(
+            'Rendering {} nodes'.format(len(self.call_graph.nodes())))
 
         return str(nx.nx_pydot.to_pydot(self.call_graph)) if not self.abort else ''
 
@@ -85,10 +89,16 @@ class GraphThread(QThread):
             for func_index, func_node in enumerate(func_stack):
                 if self.abort:
                     break
-                if upstream and func_index > MAX_UNIQUE_CALLER_NODES + 1:
+                if upstream and func_index >= MAX_UNIQUE_CALLER_NODES:
                     break
-                if not upstream and func_index > MAX_UNIQUE_CALLEE_NODES + 1:
+                if not upstream and func_index >= MAX_UNIQUE_CALLEE_NODES:
                     break
+
+                signalHub.funcCallDotProgress.emit(
+                    'Adding {} {} (max: {})'.format(
+                        func_index + 1,
+                        'callers' if upstream else 'callees',
+                        MAX_UNIQUE_CALLER_NODES if upstream else MAX_UNIQUE_CALLEE_NODES))
                 self._add_function_node(func_node, func_node == func_root)
 
                 func_calls = get_function_direct_calls(session, func_node.id, upstream)
@@ -107,9 +117,17 @@ class GraphThread(QThread):
 
     def _record_ambiguity_calls(self, session, func_stack, upstream):
         if not self.abort:
-            for func_node in func_stack:
+            for func_index, func_node in enumerate(func_stack):
                 if self.abort:
                     break
+
+                signalHub.funcCallDotProgress.emit(
+                    'Adding ambiguity {} for {} {}'.format(
+                        'callers' if upstream else 'callees',
+                        func_index + 1,
+                        'callers' if upstream else 'callees',
+                    ))
+
                 func_calls = get_function_direct_calls(
                     session, func_node.id, upstream, exact_call=False)
                 func_names = set((f.func_name for f in func_calls))

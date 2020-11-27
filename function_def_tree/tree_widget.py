@@ -4,7 +4,7 @@ from PySide2.QtCore import Slot, QItemSelection
 from PySide2.QtWidgets import QTreeView, QWidget
 
 from function_def_tree.tree_model import FunctionDefTreeModel
-from signal_hub import signalHub
+from thread_controller import thread_constroller
 
 class FunctionDefTreeWidget(QTreeView):
 
@@ -20,4 +20,4 @@ class FunctionDefTreeWidget(QTreeView):
             self, selected: QItemSelection, deselected: QItemSelection):
         func_def = selected[0].indexes()[0].internalPointer()
         if func_def.function is not None:
-            signalHub.getFuncCallDot(func_def.function.id)
+            thread_constroller.get_func_call_dot(func_def.function.id)

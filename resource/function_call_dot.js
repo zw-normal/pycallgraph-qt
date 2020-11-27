@@ -7,11 +7,26 @@ import './index.css';
 
 export class FunctionCallDot {
 
-    constructor() {
+    constructor(signalHub) {
+        this.signalHub = signalHub;
+        this.render.bind(this);
+    }
+
+    clear() {
+        d3.select("#call-graph-plot").selectAll("*").remove();
+    }
+
+    showProgress(message) {
+        this.clear();
+        d3.select("#call-graph-plot")
+            .append("span")
+            .text(message);
     }
 
     render(callDot) {
-        d3.select("#call-graph-plot").selectAll("*").remove();
+        const self = this;
+
+        self.clear();
         const svg = d3.select("#call-graph-plot").append("svg");
         const g = svg.append("g");
 
@@ -27,7 +42,7 @@ export class FunctionCallDot {
         render(g, digraph);
 
         d3.selectAll("g.node").on("dblclick", function() {
-             console.log(d3.select(this).data());
+            self.signalHub.funcCallDotNodeSel(d3.select(this).data()[0]);
         });
 
         const {x, y, width, height} = svg.node().getBBox();

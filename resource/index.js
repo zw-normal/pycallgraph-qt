@@ -6,10 +6,14 @@ import {FunctionCallDot} from "./function_call_dot";
     const qWebChannel = require("qwebchannel");
     qWebChannel.QWebChannel(qt.webChannelTransport, function (channel) {
         const signalHub = channel.objects.signalHub;
-        const funcCallDot = new FunctionCallDot();
+        const funcCallDot = new FunctionCallDot(signalHub);
 
         signalHub.funcCallDotGet.connect(function (callDot) {
             funcCallDot.render(callDot);
+        });
+
+        signalHub.funcCallDotProgress.connect(function (message) {
+            funcCallDot.showProgress(message);
         });
     });
 }());

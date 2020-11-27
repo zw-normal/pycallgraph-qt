@@ -7,8 +7,8 @@ from PySide2.QtWidgets import (
     QMainWindow, QAction, QWidget)
 
 from function_def_tree.tree_widget import FunctionDefTreeWidget
+from thread_controller import thread_constroller
 from function_call_plot.plot_widget import PlotWidget
-from signal_hub import signalHub
 
 
 class MainWidget(QWidget):
@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event: QCloseEvent) -> None:
         super().closeEvent(event)
-        signalHub.stopFuncCallGraphThread()
+        thread_constroller.cancel_func_call_dot()
 
 
 if __name__ == "__main__":
