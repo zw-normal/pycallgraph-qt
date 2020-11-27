@@ -18,6 +18,15 @@ def get_all_functions(session) -> List[FunctionNode]:
     return session.execute(stmt).scalars().all()
 
 
+def get_functions_by_name(session, func_name) -> List[FunctionNode]:
+    if not func_name:
+        return get_all_functions(session)
+    stmt = select(FunctionNode).where(
+        FunctionNode.func_name == func_name).order_by(
+        FunctionNode.module_name, FunctionNode.func_name)
+    return session.execute(stmt).scalars().all()
+
+
 def get_function_direct_calls(session, func_id: int, upstream, exact_call: bool=True):
     if upstream:
         func_ids = (FunctionCall.caller_id, FunctionCall.callee_id)

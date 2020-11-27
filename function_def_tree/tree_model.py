@@ -2,11 +2,12 @@ import enum
 from typing import Optional, Any
 
 from sqlalchemy.orm import Session
-from PySide2.QtCore import QAbstractItemModel, QModelIndex, QObject, Qt
+from PySide2.QtCore import QAbstractItemModel, QModelIndex, QObject, Qt, Slot
 
 from db import engine
 from function_def import FunctionNode, FunctionNodeType
-from function_query import get_all_functions
+from function_query import get_functions_by_name
+from signal_hub import signalHub
 
 
 class FunctionDefItemType(enum.Enum):
@@ -65,7 +66,8 @@ class FunctionDefTreeModel(QAbstractItemModel):
         super().__init__(parent)
         self.rootItem = FunctionDefItem(
             title='Root', item_type=FunctionDefItemType.Module)
-        self.loadAllFunctionItems()
+        self.loadFunctionItems('')
+        signalHub.filterFuncDefTree.connect(self.loadFunctionItems)
 
     def rowCount(self, parent: QModelIndex=...) -> int:
         if not parent.isValid():
@@ -114,9 +116,13 @@ class FunctionDefTreeModel(QAbstractItemModel):
 
         return self.createIndex(parent_item.row(), 0, parent_item)
 
-    def loadAllFunctionItems(self):
+    @Slot(str)
+    def loadFunctionItems(self, func_name):
+        self.beginResetModel()
         with Session(engine) as session:
-            for function in get_all_functions(session):
+            self.rootItem = FunctionDefItem(
+                title='Root', item_type=FunctionDefItemType.Module)
+            for function in get_functions_by_name(session, func_name):
                 next_parent = self.rootItem
                 modules = function.module_name.split('.')
                 for module in modules:
@@ -137,3 +143,4 @@ class FunctionDefTreeModel(QAbstractItemModel):
                     function=function,
                     parent=next_parent)
                 next_parent.appendChild(function_item)
+        self.endResetModel()

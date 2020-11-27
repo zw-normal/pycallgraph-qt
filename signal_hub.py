@@ -8,6 +8,8 @@ from db import engine
 
 class SignalHub(QObject):
 
+    filterFuncDefTree = Signal(str)
+
     funcCallDotProgress = Signal(str)
     funcCallDotGet = Signal(str)
 
@@ -36,7 +38,7 @@ class SignalHub(QObject):
                         func_def.func_name,
                         func_def.line_no));
                 msg_box.setTextInteractionFlags(Qt.TextSelectableByMouse)
-                msg_box.exec();
+                msg_box.exec()
         except ValueError:
             pass
 

@@ -4,20 +4,36 @@ from PySide2 import QtGui
 from PySide2.QtGui import QKeySequence, QCloseEvent
 from PySide2.QtWidgets import (
     QHBoxLayout, QSizePolicy, QApplication,
-    QMainWindow, QAction, QWidget)
+    QMainWindow, QAction, QWidget, QVBoxLayout)
 
 from function_def_tree.tree_widget import FunctionDefTreeWidget
+from function_def_tree.tree_filter_edit import FunctionDefTreeFilterEdit
 from thread_controller import thread_constroller
 from function_call_plot.plot_widget import PlotWidget
+
+
+class LeftWidget(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.func_tree_filter_edit = FunctionDefTreeFilterEdit(self)
+        self.func_tree_widget = FunctionDefTreeWidget(self)
+
+        self.main_layout = QVBoxLayout()
+        self.main_layout.addWidget(self.func_tree_filter_edit)
+        self.main_layout.addWidget(self.func_tree_widget)
+
+        self.setLayout(self.main_layout)
 
 
 class MainWidget(QWidget):
 
     def __init__(self):
-        QWidget.__init__(self)
+        super().__init__()
 
-        # Creating left FunctionTreeWidget
-        self.func_tree_widget = FunctionDefTreeWidget(self)
+        # Creating left widget
+        self.left_widget = LeftWidget(self)
 
         # Creating right PlotWidget
         self.plot_widget = PlotWidget(self)
@@ -26,7 +42,7 @@ class MainWidget(QWidget):
         self.main_layout = QHBoxLayout()
 
         # Left layout
-        self.main_layout.addWidget(self.func_tree_widget)
+        self.main_layout.addWidget(self.left_widget)
 
         # Right layout
         size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
