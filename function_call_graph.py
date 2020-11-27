@@ -85,13 +85,10 @@ class GraphThread(QThread):
     def _record_unique_calls(self, session, func_root, upstream):
         if not self.abort:
             func_stack = [func_root]
+            max_func_nodes = MAX_UNIQUE_CALLER_NODES if upstream else MAX_UNIQUE_CALLEE_NODES
 
             for func_index, func_node in enumerate(func_stack):
                 if self.abort:
-                    break
-                if upstream and func_index >= MAX_UNIQUE_CALLER_NODES:
-                    break
-                if not upstream and func_index >= MAX_UNIQUE_CALLEE_NODES:
                     break
 
                 signalHub.funcCallDotProgress.emit(
@@ -111,7 +108,10 @@ class GraphThread(QThread):
                     else:
                         self._add_function_call(func_node, func_call)
                     if func_call not in func_stack:
+                        max_func_nodes = max_func_nodes - 1
                         func_stack.append(func_call)
+                    if max_func_nodes <= 0:
+                        return func_stack
             return func_stack
         return []
 
