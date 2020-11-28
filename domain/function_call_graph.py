@@ -4,7 +4,7 @@ import networkx as nx
 
 from .function_query import (
     get_function, get_function_direct_calls)
-from .function_ambiguity import FunctionAmbiguity, FunctionAmbiguityType
+from .function_uncertain import FunctionUncertain, FunctionUncertainType
 from signal_hub import signalHub
 from db import db_engine
 from settings import settings
@@ -50,8 +50,8 @@ class GraphThread(QThread):
 
             if func_root:
                 # Find callers
-                self._record_unique_calls(session, func_root, True)
-                # self._record_ambiguity_calls(session, func_stack, True)
+                func_stack = self._record_unique_calls(session, func_root, True)
+                self._record_ambiguity_calls(session, func_stack, True)
 
                 # Find callees
                 func_stack = self._record_unique_calls(session, func_root, False)
@@ -66,7 +66,7 @@ class GraphThread(QThread):
         return str(nx.nx_pydot.to_pydot(self.call_graph)) if not self.abort else ''
 
     def _add_function_node(self, func_node, is_root=False):
-        if isinstance(func_node, FunctionAmbiguity):
+        if isinstance(func_node, FunctionUncertain):
             self.call_graph.add_node(
                 func_node,
                 label='{}\nUncertain'.format(
@@ -125,6 +125,7 @@ class GraphThread(QThread):
 
     def _record_ambiguity_calls(self, session, func_stack, upstream):
         if not self.abort:
+            func_nodes_added = 0
             for func_index, func_node in enumerate(func_stack):
                 if self.abort:
                     break
@@ -142,12 +143,15 @@ class GraphThread(QThread):
                 for func_name in func_names:
                     if self.abort:
                         break
-                    func_call = FunctionAmbiguity(
+                    func_call = FunctionUncertain(
                         func_name,
-                        FunctionAmbiguityType.Caller if upstream else FunctionAmbiguityType.Callee,
+                        FunctionUncertainType.Caller if upstream else FunctionUncertainType.Callee,
                         func_node.id)
                     self._add_function_node(func_call)
                     if upstream:
                         self._add_function_call(func_call, func_node)
+                        func_nodes_added = func_nodes_added + 1
+                        if func_nodes_added > settings.max_uncertain_caller_nodes:
+                            return
                     else:
                         self._add_function_call(func_node, func_call)
