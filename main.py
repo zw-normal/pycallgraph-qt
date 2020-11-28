@@ -12,6 +12,7 @@ from db import db_engine
 from domain.function_query import get_function
 from left_widget import LeftWidget
 from right_widget import RightWidget
+from settings import SettingsDialog
 from signal_hub import signalHub
 
 
@@ -23,18 +24,18 @@ class MainWidget(QWidget):
         self.left_widget = LeftWidget(self)
         self.right_widget = RightWidget(self)
 
-        self.main_layout = QHBoxLayout()
-        self.main_layout.addWidget(self.left_widget)
+        main_layout = QHBoxLayout()
+        main_layout.addWidget(self.left_widget)
 
         # Right layout
         size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         size.setHorizontalStretch(1)
         self.right_widget.setSizePolicy(size)
 
-        self.main_layout.addWidget(self.right_widget)
+        main_layout.addWidget(self.right_widget)
 
         # Set the layout to the QWidget
-        self.setLayout(self.main_layout)
+        self.setLayout(main_layout)
 
 
 class MainWindow(QMainWindow):
@@ -49,9 +50,13 @@ class MainWindow(QMainWindow):
         self.menu.setNativeMenuBar(False)
         self.file_menu = self.menu.addMenu('File')
 
-        # Open FileAction
+        # Open File Action
         open_file_action = QAction('Open...', self)
         open_file_action.triggered.connect(self.openDataFile)
+
+        # Settings Action
+        settings_action = QAction('Settings...', self)
+        settings_action.triggered.connect(self.openSettings)
 
         # Exit QAction
         exit_action = QAction('Exit', self)
@@ -60,6 +65,8 @@ class MainWindow(QMainWindow):
 
         # Add menu action
         self.file_menu.addAction(open_file_action)
+        self.file_menu.addSeparator()
+        self.file_menu.addAction(settings_action)
         self.file_menu.addSeparator()
         self.file_menu.addAction(exit_action)
 
@@ -82,6 +89,11 @@ class MainWindow(QMainWindow):
         if file_name[0]:
             db_engine.openDataFile(file_name[0])
             signalHub.dataFileOpened.emit()
+
+    @Slot()
+    def openSettings(self):
+        settings_dialog = SettingsDialog(self)
+        settings_dialog.show()
 
     @Slot(object)
     def showFuncDefMessageBox(self, func_id: object):
@@ -113,6 +125,9 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setOrganizationName('Datagraph Space')
+    app.setOrganizationDomain('datagraph.space')
+    app.setApplicationName('Python Call Graph')
     geometry = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 
     window = MainWindow()

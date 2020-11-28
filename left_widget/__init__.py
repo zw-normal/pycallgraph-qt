@@ -11,8 +11,7 @@ class LeftWidget(QWidget):
         self.func_tree_filter_edit = FunctionDefTreeFilterEdit(self)
         self.func_tree_widget = FunctionDefTreeWidget(self)
 
-        self.main_layout = QVBoxLayout()
-        self.main_layout.addWidget(self.func_tree_filter_edit)
-        self.main_layout.addWidget(self.func_tree_widget)
-
-        self.setLayout(self.main_layout)
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.func_tree_filter_edit)
+        main_layout.addWidget(self.func_tree_widget)
+        self.setLayout(main_layout)

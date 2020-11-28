@@ -78,6 +78,8 @@ class FunctionDefTreeModelThread(QThread):
             for function in get_functions_by_name(session, self.func_name):
                 if self.abort:
                     self.resultReady.emit(None)
+                signalHub.showStatusBarMessage.emit(
+                    'Loading {}...'.format(function.full_name))
                 next_parent = root_item
                 modules = function.module_name.split('.')
                 for module in modules:
@@ -179,7 +181,7 @@ class FunctionDefTreeModel(QAbstractItemModel):
         if self.loadThread:
             self.loadThread.resultReady.disconnect()
             self.loadThread.stop()
-        signalHub.showStatusBarMessage.emit('Loading data...')
+        signalHub.showStatusBarMessage.emit('Loading...')
         self.loadThread = FunctionDefTreeModelThread(func_name)
         self.loadThread.resultReady.connect(self.loadFunctionItemDone)
         self.loadThread.start()

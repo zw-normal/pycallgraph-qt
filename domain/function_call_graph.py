@@ -5,9 +5,9 @@ import networkx as nx
 from .function_query import (
     get_function, get_function_direct_calls)
 from .function_ambiguity import FunctionAmbiguity, FunctionAmbiguityType
-from setting import MAX_UNIQUE_CALLER_NODES, MAX_UNIQUE_CALLEE_NODES
 from signal_hub import signalHub
 from db import db_engine
+from settings import settings
 
 
 FunctionNodeColor = {
@@ -92,7 +92,7 @@ class GraphThread(QThread):
     def _record_unique_calls(self, session, func_root, upstream):
         if not self.abort:
             func_stack = [func_root]
-            max_func_nodes = MAX_UNIQUE_CALLER_NODES if upstream else MAX_UNIQUE_CALLEE_NODES
+            max_func_nodes = settings.get_max_unique_nodes(upstream)
 
             for func_index, func_node in enumerate(func_stack):
                 if self.abort:
@@ -102,7 +102,7 @@ class GraphThread(QThread):
                     'Adding {} {} (max: {})'.format(
                         func_index + 1,
                         'callers' if upstream else 'callees',
-                        MAX_UNIQUE_CALLER_NODES if upstream else MAX_UNIQUE_CALLEE_NODES))
+                        settings.get_max_unique_nodes(upstream)))
                 self._add_function_node(func_node, func_node == func_root)
 
                 func_calls = get_function_direct_calls(session, func_node.id, upstream)

@@ -55,3 +55,9 @@ class FunctionNode(Base):
     @property
     def base_source_name(self):
         return os.path.basename(self.source_file.replace('\\', os.sep))
+
+    @property
+    def full_name(self):
+        if self.class_name:
+            return '{}:{}.{}'.format(self.module_name, self.class_name, self.func_name)
+        return '{}.{}'.format(self.module_name, self.func_name)
