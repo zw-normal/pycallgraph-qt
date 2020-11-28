@@ -1,8 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
-# Leave the import for all tables definition to load
-from domain import function_def, function_call
+from domain.db_base import Base
 
 
 class DBEngine:
@@ -15,7 +14,7 @@ class DBEngine:
             future=True,
             connect_args={'check_same_thread': False},
             poolclass=StaticPool)
-        function_def.Base.metadata.create_all(self.engine)
+        Base.metadata.create_all(self.engine)
 
     def openDataFile(self, file_name):
         # Make sure only call this function from main even loop

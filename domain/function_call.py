@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
-from .function_def import Base, FunctionNode
+from .db_base import Base
+from .function_def import FunctionNode
 
 
 class FunctionCall(Base):
