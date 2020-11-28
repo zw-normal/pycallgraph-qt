@@ -1,30 +1,18 @@
 import sys
 
 from PySide2 import QtGui
+from PySide2.QtCore import Slot, Qt
 from PySide2.QtGui import QKeySequence, QCloseEvent
 from PySide2.QtWidgets import (
     QHBoxLayout, QSizePolicy, QApplication,
-    QMainWindow, QAction, QWidget, QVBoxLayout)
+    QMainWindow, QAction, QWidget, QMessageBox, QFileDialog)
+from sqlalchemy.orm import Session
 
-from function_def_tree.tree_widget import FunctionDefTreeWidget
-from function_def_tree.tree_filter_edit import FunctionDefTreeFilterEdit
-from thread_controller import thread_constroller
-from function_call_plot.plot_widget import PlotWidget
-
-
-class LeftWidget(QWidget):
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self.func_tree_filter_edit = FunctionDefTreeFilterEdit(self)
-        self.func_tree_widget = FunctionDefTreeWidget(self)
-
-        self.main_layout = QVBoxLayout()
-        self.main_layout.addWidget(self.func_tree_filter_edit)
-        self.main_layout.addWidget(self.func_tree_widget)
-
-        self.setLayout(self.main_layout)
+from db import db_engine
+from domain.function_query import get_function
+from left_widget import LeftWidget
+from right_widget import RightWidget
+from signal_hub import signalHub
 
 
 class MainWidget(QWidget):
@@ -32,24 +20,18 @@ class MainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Creating left widget
         self.left_widget = LeftWidget(self)
+        self.right_widget = RightWidget(self)
 
-        # Creating right PlotWidget
-        self.plot_widget = PlotWidget(self)
-
-        # Main layout
         self.main_layout = QHBoxLayout()
-
-        # Left layout
         self.main_layout.addWidget(self.left_widget)
 
         # Right layout
         size = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         size.setHorizontalStretch(1)
-        self.plot_widget.setSizePolicy(size)
+        self.right_widget.setSizePolicy(size)
 
-        self.main_layout.addWidget(self.plot_widget)
+        self.main_layout.addWidget(self.right_widget)
 
         # Set the layout to the QWidget
         self.setLayout(self.main_layout)
@@ -64,26 +46,72 @@ class MainWindow(QMainWindow):
 
         # Menu
         self.menu = self.menuBar()
+        self.menu.setNativeMenuBar(False)
         self.file_menu = self.menu.addMenu('File')
+
+        # Open FileAction
+        open_file_action = QAction('Open...', self)
+        open_file_action.triggered.connect(self.openDataFile)
 
         # Exit QAction
         exit_action = QAction('Exit', self)
         exit_action.setShortcut(QKeySequence.Quit)
         exit_action.triggered.connect(self.close)
 
+        # Add menu action
+        self.file_menu.addAction(open_file_action)
+        self.file_menu.addSeparator()
         self.file_menu.addAction(exit_action)
 
         # Status Bar
         self.status = self.statusBar()
-        self.status.showMessage('Data loaded')
+        self.status.showMessage('Ready')
+
+        # Signal Connection
+        signalHub.showFuncDefMessageBox.connect(self.showFuncDefMessageBox)
+        signalHub.showStatusBarMessage.connect(self.showStatusBarMessage)
 
     def closeEvent(self, event: QCloseEvent) -> None:
         super().closeEvent(event)
-        thread_constroller.cancel_func_call_dot()
+        signalHub.exitingApp.emit()
+
+    @Slot()
+    def openDataFile(self):
+        file_name = QFileDialog.getOpenFileName(
+            self, 'Open Data File', '', 'Data Files (*.sqlite3)')
+        if file_name[0]:
+            db_engine.openDataFile(file_name[0])
+            signalHub.dataFileOpened.emit()
+
+    @Slot(object)
+    def showFuncDefMessageBox(self, func_id: object):
+        try:
+            if isinstance(func_id, str):
+                func_id = int(func_id)
+            with Session(db_engine.engine) as session:
+                func_def = get_function(session, func_id)
+                if func_def:
+                    msg_box = QMessageBox()
+                    msg_box.setText(
+                        '<b>Source File:</b> <br>{}<br>'
+                        '<b>Module Name:</b> {}<br>'
+                        '<b>Function Name:</b> {}<br>'
+                        '<b>Line No:</b> {}'.format(
+                            func_def.source_file,
+                            func_def.module_name,
+                            func_def.func_name,
+                            func_def.line_no))
+                    msg_box.setTextInteractionFlags(Qt.TextSelectableByMouse)
+                    msg_box.exec()
+        except ValueError:
+            pass
+
+    @Slot(str)
+    def showStatusBarMessage(self, message: str):
+        self.status.showMessage(message)
 
 
 if __name__ == "__main__":
-    # Qt Application
     app = QApplication(sys.argv)
     geometry = QtGui.QGuiApplication.primaryScreen().availableGeometry()
 

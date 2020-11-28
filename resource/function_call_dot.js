@@ -35,9 +35,9 @@ export class FunctionCallDot {
         };
 
         const digraph = dot.read(callDot);
-        for (const edge of digraph.edges()) {
-            digraph.setEdge(edge.v, edge.w, {curve: d3.curveBasis});
-        }
+        // for (const edge of digraph.edges()) {
+        //     digraph.setEdge(edge.v, edge.w, {curve: d3.curveBasis});
+        // }
         const render = new dagreD3.render();
         render(g, digraph);
 
