@@ -151,7 +151,7 @@ class GraphThread(QThread):
                     if upstream:
                         self._add_function_call(func_call, func_node)
                         func_nodes_added = func_nodes_added + 1
-                        if func_nodes_added > settings.max_uncertain_caller_nodes:
+                        if func_nodes_added >= settings.max_uncertain_caller_nodes:
                             return
                     else:
                         self._add_function_call(func_node, func_call)
