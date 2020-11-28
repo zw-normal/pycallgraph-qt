@@ -2,7 +2,7 @@ import os
 import enum
 
 from sqlalchemy import Column, Integer, String, Enum, UniqueConstraint
-from .db_base import Base
+from db import Base
 
 
 class FunctionNodeType(enum.Enum):

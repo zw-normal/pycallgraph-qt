@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
-from .db_base import Base
+from db import Base
 from .function_def import FunctionNode
 
 

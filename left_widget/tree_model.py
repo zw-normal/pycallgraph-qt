@@ -77,6 +77,7 @@ class FunctionDefTreeModelThread(QThread):
             return self._abort
 
     def run(self) -> None:
+        assert db_engine.engine is not None
         with Session(db_engine.engine) as session:
             root_item = FunctionDefItem(
                 title='Root', item_type=FunctionDefItemType.Module)
@@ -122,7 +123,8 @@ class FunctionDefTreeModel(QAbstractItemModel):
         self.rootItem = FunctionDefItem(
             title='Root', item_type=FunctionDefItemType.Module)
         self.loadThread = None
-        # self.loadFunctionItems('')
+        self.root_item = FunctionDefItem(
+            title='Root', item_type=FunctionDefItemType.Module)
 
         signalHub.filterFuncDefTree.connect(self.loadFunctionItems)
         signalHub.dataFileOpened.connect(self.loadNewDataFile)

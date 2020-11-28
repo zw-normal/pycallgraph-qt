@@ -48,6 +48,7 @@ class GraphThread(QThread):
         self.wait()
 
     def _get_function_call_dot(self):
+        assert db_engine.engine is not None
         with Session(db_engine.engine) as session:
             func_root = get_function(session, self.func_id)
 

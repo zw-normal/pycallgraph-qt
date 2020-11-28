@@ -97,6 +97,7 @@ class MainWindow(QMainWindow):
 
     @Slot(object)
     def showFuncDefMessageBox(self, func_id: object):
+        assert db_engine.engine is not None
         try:
             if isinstance(func_id, str):
                 func_id = int(func_id)
