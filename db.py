@@ -1,6 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
+# Keep the import to ensure tables can be init (the create_all)
+from domain import function_def, function_call
 from domain.db_base import Base
 
 
