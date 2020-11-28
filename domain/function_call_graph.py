@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from PySide2.QtCore import QThread, QMutex, Signal
+from PySide2.QtCore import QThread, QMutex, Signal, QMutexLocker
 import networkx as nx
 
 from .function_query import (
@@ -30,7 +30,12 @@ class GraphThread(QThread):
         self.call_graph = nx.DiGraph()
 
         self.mutex = QMutex()
-        self.abort = False
+        self._abort = False
+
+    @property
+    def abort(self):
+        with QMutexLocker(self.mutex):
+            return self._abort
 
     def run(self) -> None:
         result = self._get_function_call_dot()
@@ -38,10 +43,8 @@ class GraphThread(QThread):
             self.resultReady.emit(result)
 
     def stop(self):
-        self.mutex.lock()
-        self.abort = True
-        self.mutex.unlock()
-
+        with QMutexLocker(self.mutex):
+            self._abort = True
         self.wait()
 
     def _get_function_call_dot(self):

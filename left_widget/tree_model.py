@@ -2,7 +2,7 @@ import enum
 from typing import Optional, Any
 
 from sqlalchemy.orm import Session
-from PySide2.QtCore import QAbstractItemModel, QModelIndex, QObject, Qt, Slot, QThread, Signal, QMutex
+from PySide2.QtCore import QAbstractItemModel, QModelIndex, QObject, Qt, Slot, QThread, Signal, QMutex, QMutexLocker
 
 from db import db_engine
 from domain.function_def import FunctionNode, FunctionNodeType
@@ -69,7 +69,12 @@ class FunctionDefTreeModelThread(QThread):
         self.func_name = func_name
 
         self.mutex = QMutex()
-        self.abort = False
+        self._abort = False
+
+    @property
+    def abort(self):
+        with QMutexLocker(self.mutex):
+            return self._abort
 
     def run(self) -> None:
         with Session(db_engine.engine) as session:
@@ -105,10 +110,8 @@ class FunctionDefTreeModelThread(QThread):
             self.resultReady.emit(root_item)
 
     def stop(self):
-        self.mutex.lock()
-        self.abort = True
-        self.mutex.unlock()
-
+        with QMutexLocker(self.mutex):
+            self._abort = True
         self.wait()
 
 
