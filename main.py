@@ -54,6 +54,10 @@ class MainWindow(QMainWindow):
         open_file_action = QAction('Open...', self)
         open_file_action.triggered.connect(self.openDataFile)
 
+        # Export Png Action
+        export_png_action = QAction('Export PNG...', self)
+        export_png_action.triggered.connect(self.exportPng)
+
         # Settings Action
         settings_action = QAction('Settings...', self)
         settings_action.triggered.connect(self.openSettings)
@@ -65,6 +69,7 @@ class MainWindow(QMainWindow):
 
         # Add menu action
         self.file_menu.addAction(open_file_action)
+        # self.file_menu.addAction(export_png_action)
         self.file_menu.addSeparator()
         self.file_menu.addAction(settings_action)
         self.file_menu.addSeparator()
@@ -89,6 +94,10 @@ class MainWindow(QMainWindow):
         if file_name[0]:
             db_engine.openDataFile(file_name[0])
             signalHub.dataFileOpened.emit()
+
+    @Slot()
+    def exportPng(self):
+        signalHub.funcCallDotSave.emit()
 
     @Slot()
     def openSettings(self):

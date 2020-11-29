@@ -13,6 +13,7 @@ class SignalHub(QObject):
     # Handled by resource/index.js
     funcCallDotProgress = Signal(str)
     funcCallDotGet = Signal(str)
+    funcCallDotSave = Signal()
 
     # Handled by multiple widgets
     dataFileOpened = Signal()

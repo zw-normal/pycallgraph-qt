@@ -89,9 +89,13 @@ class GraphThread(QThread):
 
     def _add_function_call(self, func_caller, func_callee, line_no=0):
         if line_no:
-            self.call_graph.add_edge(func_caller, func_callee, label='L{}'.format(line_no))
+            self.call_graph.add_edge(
+                func_caller, func_callee,
+                label='L{}'.format(line_no))
         else:
-            self.call_graph.add_edge(func_caller, func_callee)
+            self.call_graph.add_edge(
+                func_caller, func_callee
+            )
 
     def _record_unique_calls(self, session, func_root, upstream):
         if not self.abort:

@@ -19,22 +19,22 @@ text {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serf, serif;
     font-size: 14px;
 }
-  
+
 .node rect {
     stroke: #333;
     fill: #fff;
     stroke-width: 1px;
 }
-  
+
 .edgePath path.path {
     stroke: #333;
     fill: none;
     stroke-width: 1px;
 }
-  
+
 .arrowhead {
-   stroke: blue;
-   fill: blue;
+   stroke: #333;
+   fill: #333;
    stroke-width: 1px;
 }
 

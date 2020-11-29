@@ -2,6 +2,7 @@ import * as d3 from "d3";
 
 const dot = require("graphlib-dot");
 const dagreD3 = require("dagre-d3");
+const exportPng = require("save-svg-as-png");
 
 import './index.css';
 
@@ -23,6 +24,16 @@ export class FunctionCallDot {
             .text(message);
     }
 
+    saveAsPng() {
+        if (document.querySelector("#call-graph-plot svg")) {
+            exportPng.saveSvgAsPng(
+                document.querySelector("#call-graph-plot svg"),
+                'function-call-graph.png',
+                { backgroundColor: 'white' }
+            );
+        }
+    }
+
     render(callDot) {
         const self = this;
 
@@ -35,9 +46,6 @@ export class FunctionCallDot {
         };
 
         const digraph = dot.read(callDot);
-        // for (const edge of digraph.edges()) {
-        //     digraph.setEdge(edge.v, edge.w, {curve: d3.curveBasis});
-        // }
         const render = new dagreD3.render();
         render(g, digraph);
 
