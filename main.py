@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
                 if func_def:
                     msg_box = QMessageBox()
                     msg_box.setText(
-                        '<b>Source File:</b> <br>{}<br>'
+                        '<b>Source File:</b> {}<br>'
                         '<b>Module Name:</b> {}<br>'
                         '<b>Function Name:</b> {}<br>'
                         '<b>Line No:</b> {}'.format(
