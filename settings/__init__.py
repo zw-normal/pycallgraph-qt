@@ -6,6 +6,7 @@ class Settings:
 
     def __init__(self):
         self.settings = QSettings()
+        self.settings = QSettings('settings.ini', QSettings.IniFormat)
 
     @property
     def max_unique_caller_nodes(self):
