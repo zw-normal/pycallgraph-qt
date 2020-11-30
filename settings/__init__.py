@@ -18,7 +18,7 @@ class Settings:
 
     @property
     def max_uncertain_caller_nodes(self):
-        return int(self.settings.value('max_uncertain_caller_nodes', 60))
+        return int(self.settings.value('max_uncertain_caller_nodes', 20))
 
     @max_uncertain_caller_nodes.setter
     def max_uncertain_caller_nodes(self, value: int):
