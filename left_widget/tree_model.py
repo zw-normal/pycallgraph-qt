@@ -84,7 +84,7 @@ class FunctionDefTreeModelThread(QThread):
             func_count = 0
             for function in get_functions_by_name(session, self.func_name):
                 if self.abort:
-                    self.resultReady.emit((None, 0))
+                    self.resultReady.emit((None, self.func_name, 0))
                     return
                 signalHub.showStatusBarMessage.emit(
                     'Loading {}...'.format(function.full_name))
@@ -92,7 +92,7 @@ class FunctionDefTreeModelThread(QThread):
                 modules = function.module_name.split('.')
                 for module in modules:
                     if self.abort:
-                        self.resultReady.emit((None, 0))
+                        self.resultReady.emit((None, self.func_name, 0))
                         return
                     module_item = FunctionDefItem(
                         title=module,
@@ -112,7 +112,7 @@ class FunctionDefTreeModelThread(QThread):
                     parent=next_parent)
                 next_parent.appendChild(function_item)
                 func_count = func_count + 1
-            self.resultReady.emit((root_item, func_count))
+            self.resultReady.emit((root_item, self.func_name, func_count))
 
     def stop(self):
         with QMutexLocker(self.mutex):
@@ -129,8 +129,7 @@ class FunctionDefTreeModel(QAbstractItemModel):
         self.rootItem = FunctionDefItem(
             title='Root', item_type=FunctionDefItemType.Module)
         self.loadThread = None
-        self.root_item = FunctionDefItem(
-            title='Root', item_type=FunctionDefItemType.Module)
+        self.allFuncItemsCached = None
 
         signalHub.filterFuncDefTree.connect(self.loadFunctionItems)
         signalHub.dataFileOpened.connect(self.loadNewDataFile)
@@ -185,6 +184,12 @@ class FunctionDefTreeModel(QAbstractItemModel):
 
     @Slot()
     def loadNewDataFile(self):
+        self.beginResetModel()
+        self.rootItem = FunctionDefItem(
+            title='Root', item_type=FunctionDefItemType.Module)
+        self.endResetModel()
+
+        self.allFuncItemsCached = None
         self.loadFunctionItems('')
 
     @Slot(str)
@@ -195,15 +200,21 @@ class FunctionDefTreeModel(QAbstractItemModel):
         signalHub.showStatusBarMessage.emit('Loading...')
         self.loadThread = FunctionDefTreeModelThread(func_name)
         self.loadThread.resultReady.connect(self.loadFunctionItemsDone)
-        self.loadThread.start()
+
+        if (not func_name) and self.allFuncItemsCached:
+            self.loadFunctionItemsDone(self.allFuncItemsCached)
+        else:
+            self.loadThread.start()
 
     @Slot(object)
     def loadFunctionItemsDone(self, result):
-        root_item, func_count = result
+        root_item, func_name, func_count = result
         if root_item:
             self.beginResetModel()
             self.rootItem = root_item
             self.endResetModel()
+        if not func_name:
+            self.allFuncItemsCached = result
         self.functionItemsChanged.emit(func_count)
         signalHub.showStatusBarMessage.emit('Ready')
 
