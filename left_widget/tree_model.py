@@ -85,6 +85,7 @@ class FunctionDefTreeModelThread(QThread):
             for function in get_functions_by_name(session, self.func_name):
                 if self.abort:
                     self.resultReady.emit((None, 0))
+                    return
                 signalHub.showStatusBarMessage.emit(
                     'Loading {}...'.format(function.full_name))
                 next_parent = root_item
@@ -92,6 +93,7 @@ class FunctionDefTreeModelThread(QThread):
                 for module in modules:
                     if self.abort:
                         self.resultReady.emit((None, 0))
+                        return
                     module_item = FunctionDefItem(
                         title=module,
                         item_type=FunctionDefItemType.Module,
