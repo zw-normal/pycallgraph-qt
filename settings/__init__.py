@@ -10,7 +10,7 @@ class Settings:
 
     @property
     def max_unique_caller_nodes(self):
-        return self.settings.value('max_unique_caller_nodes', 60)
+        return int(self.settings.value('max_unique_caller_nodes', 60))
 
     @max_unique_caller_nodes.setter
     def max_unique_caller_nodes(self, value: int):
@@ -18,7 +18,7 @@ class Settings:
 
     @property
     def max_uncertain_caller_nodes(self):
-        return self.settings.value('max_uncertain_caller_nodes', 60)
+        return int(self.settings.value('max_uncertain_caller_nodes', 60))
 
     @max_uncertain_caller_nodes.setter
     def max_uncertain_caller_nodes(self, value: int):
@@ -26,7 +26,7 @@ class Settings:
 
     @property
     def max_unique_callee_nodes(self):
-        return self.settings.value('max_unique_callee_nodes', 60)
+        return int(self.settings.value('max_unique_callee_nodes', 60))
 
     @max_unique_callee_nodes.setter
     def max_unique_callee_nodes(self, value: int):
