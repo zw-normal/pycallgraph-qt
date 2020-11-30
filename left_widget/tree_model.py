@@ -120,7 +120,7 @@ class FunctionDefTreeModelThread(QThread):
 
 class FunctionDefTreeModel(QAbstractItemModel):
 
-    expandFunctionItems = Signal(int)
+    functionItemsChanged = Signal(int)
 
     def __init__(self, parent: Optional[QObject]=...):
         super().__init__(parent)
@@ -202,7 +202,7 @@ class FunctionDefTreeModel(QAbstractItemModel):
             self.beginResetModel()
             self.rootItem = root_item
             self.endResetModel()
-        self.expandFunctionItems.emit(func_count)
+        self.functionItemsChanged.emit(func_count)
         signalHub.showStatusBarMessage.emit('Ready')
 
     @Slot()

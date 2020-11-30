@@ -17,8 +17,8 @@ class FunctionDefTreeWidget(QTreeView):
         self.setModel(FunctionDefTreeModel(self))
         self.setHeaderHidden(True)
 
-        self.model().expandFunctionItems.connect(
-            self.expandFunctionItems)
+        self.model().functionItemsChanged.connect(
+            self.functionItemsChanged)
         self.selectionModel().selectionChanged.connect(
             self.functionItemSelected)
         signalHub.exitingApp.connect(self.exitApp)
@@ -36,7 +36,7 @@ class FunctionDefTreeWidget(QTreeView):
             self.graph_thread.start()
 
     @Slot(int)
-    def expandFunctionItems(self, func_count):
+    def functionItemsChanged(self, func_count):
         if 0 < func_count < 6:
             self.expandAll()
 
