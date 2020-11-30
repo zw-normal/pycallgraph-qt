@@ -81,16 +81,17 @@ class FunctionDefTreeModelThread(QThread):
         with Session(db_engine.engine) as session:
             root_item = FunctionDefItem(
                 title='Root', item_type=FunctionDefItemType.Module)
+            func_count = 0
             for function in get_functions_by_name(session, self.func_name):
                 if self.abort:
-                    self.resultReady.emit(None)
+                    self.resultReady.emit((None, 0))
                 signalHub.showStatusBarMessage.emit(
                     'Loading {}...'.format(function.full_name))
                 next_parent = root_item
                 modules = function.module_name.split('.')
                 for module in modules:
                     if self.abort:
-                        self.resultReady.emit(None)
+                        self.resultReady.emit((None, 0))
                     module_item = FunctionDefItem(
                         title=module,
                         item_type=FunctionDefItemType.Module,
@@ -108,7 +109,8 @@ class FunctionDefTreeModelThread(QThread):
                     function=function,
                     parent=next_parent)
                 next_parent.appendChild(function_item)
-            self.resultReady.emit(root_item)
+                func_count = func_count + 1
+            self.resultReady.emit((root_item, func_count))
 
     def stop(self):
         with QMutexLocker(self.mutex):
@@ -117,6 +119,8 @@ class FunctionDefTreeModelThread(QThread):
 
 
 class FunctionDefTreeModel(QAbstractItemModel):
+
+    expandFunctionItems = Signal(int)
 
     def __init__(self, parent: Optional[QObject]=...):
         super().__init__(parent)
@@ -188,15 +192,17 @@ class FunctionDefTreeModel(QAbstractItemModel):
             self.loadThread.stop()
         signalHub.showStatusBarMessage.emit('Loading...')
         self.loadThread = FunctionDefTreeModelThread(func_name)
-        self.loadThread.resultReady.connect(self.loadFunctionItemDone)
+        self.loadThread.resultReady.connect(self.loadFunctionItemsDone)
         self.loadThread.start()
 
     @Slot(object)
-    def loadFunctionItemDone(self, root_item):
+    def loadFunctionItemsDone(self, result):
+        root_item, func_count = result
         if root_item:
             self.beginResetModel()
             self.rootItem = root_item
             self.endResetModel()
+        self.expandFunctionItems.emit(func_count)
         signalHub.showStatusBarMessage.emit('Ready')
 
     @Slot()

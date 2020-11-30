@@ -7,6 +7,7 @@ from left_widget.tree_model import FunctionDefTreeModel
 from domain.function_call_graph import GraphThread
 from signal_hub import signalHub
 
+
 class FunctionDefTreeWidget(QTreeView):
 
     def __init__(self, parent: Optional[QWidget] = ...):
@@ -16,6 +17,8 @@ class FunctionDefTreeWidget(QTreeView):
         self.setModel(FunctionDefTreeModel(self))
         self.setHeaderHidden(True)
 
+        self.model().expandFunctionItems.connect(
+            self.expandFunctionItems)
         self.selectionModel().selectionChanged.connect(
             self.functionItemSelected)
         signalHub.exitingApp.connect(self.exitApp)
@@ -31,6 +34,11 @@ class FunctionDefTreeWidget(QTreeView):
             self.graph_thread = GraphThread(func_def.function.id)
             self.graph_thread.resultReady.connect(signalHub.getFuncCallDone)
             self.graph_thread.start()
+
+    @Slot(int)
+    def expandFunctionItems(self, func_count):
+        if 0 < func_count < 6:
+            self.expandAll()
 
     @Slot()
     def exitApp(self):
